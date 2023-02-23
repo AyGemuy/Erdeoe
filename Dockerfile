@@ -1,16 +1,17 @@
-FROM microsoft/windowsservercore
+FROM mcr.microsoft.com/windows/servercore:ltsc2019
 
 # Install RDP
-RUN dism.exe /online /enable-feature /featurename:RemoteDesktop-Core /all /norestart
+RUN dism /online /enable-feature /featurename:RemoteDesktop-Core /all /norestart
 
-# Set up firewall
-RUN netsh advfirewall firewall add rule name="RDP" dir=in action=allow protocol=TCP localport=3389
+# Set Administrator password
+RUN net user administrator /passwordreq:yes
+RUN net user administrator *
 
-# Set up keep alive
-RUN reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server" /v KeepAliveEnable /t REG_DWORD /d 1
-
-# Expose port
+# Expose RDP port
 EXPOSE 3389
 
-# Start RDP
-CMD ["C:\\Windows\\System32\\mstsc.exe"]
+# Set RDP to allow connections
+RUN reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
+
+# Start RDP service
+CMD ["C:\\Windows\\System32\\svchost.exe", "-k", "termsvcs"]
