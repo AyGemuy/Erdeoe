@@ -8,15 +8,4 @@ RUN apt-get update && apt-get install -y \
     net-tools \
     curl
 
-RUN mkdir -p /var/run/dbus \
-    && dbus-uuidgen > /var/run/dbus/machine-id
-
-RUN curl -sL https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip -o ngrok.zip \
-    && unzip ngrok.zip -d /usr/local/bin \
-    && rm ngrok.zip
-
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
-EXPOSE 3389
-
-CMD ["/usr/bin/supervisord"]
+RUN wget https://s03.winiso.pl/files/Windows10/pl-pl_windows_10_multi_editions_version_22h2_updated_august_2022_x64_d5ea3411.iso && mount -o loop pl-pl_windows_10_multi_editions_version_22h2_updated_august_2022_x64_d5ea3411.iso /mnt && cd /mnt && ./setup.exe && yum install xrdp && systemctl start xrdp && rdesktop -u wudysoft -p AyGemuy24 127.0.0
