@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/windows/servercore:latest
+FROM mcr.microsoft.com/windows/servercore:ltsc2019
 
 # Install RDP
 RUN dism.exe /online /enable-feature /featurename:RemoteDesktop-Core /all /norestart
