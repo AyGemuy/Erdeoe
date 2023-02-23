@@ -1,15 +1,22 @@
 FROM ubuntu:latest
 
-# Install Ngrok
-RUN apt-get update && apt-get install -y wget unzip
-RUN wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
-RUN unzip ngrok-stable-linux-amd64.zip
+RUN apt-get update && apt-get install -y \
+    xfce4 \
+    xrdp \
+    x11vnc \
+    supervisor \
+    net-tools \
+    curl
 
-# Install xrdp
-RUN apt-get update && apt-get install -y xrdp
+RUN mkdir -p /var/run/dbus \
+    && dbus-uuidgen > /var/run/dbus/machine-id
 
-# Expose port
+RUN curl -sL https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip -o ngrok.zip \
+    && unzip ngrok.zip -d /usr/local/bin \
+    && rm ngrok.zip
+
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
 EXPOSE 3389
 
-# Start xrdp and ngrok
-CMD xrdp -n && ./ngrok tcp 3389 --log=stdout --log-level=debug --region=us --authtoken=1pRvfePyCgaa2xZw3Wk4VxOANxA_5KEgrVHxaV9XohEnzDe3S --keepalive=true
+CMD ["/usr/bin/supervisord"]
