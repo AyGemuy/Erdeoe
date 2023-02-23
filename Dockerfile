@@ -1,18 +1,15 @@
 FROM microsoft/windowsservercore
 
 # Install RDP
-RUN dism /online /enable-feature /featurename:RemoteDesktop-Core /all /NoRestart
+RUN dism.exe /online /enable-feature /featurename:RemoteDesktop-Core /all /norestart
 
-# Install Kubernetes
-RUN powershell -Command \
-    Invoke-WebRequest -Uri https://aka.ms/kubernetes -OutFile kubernetes.msi ; \
-    Start-Process msiexec.exe -ArgumentList '/i', 'kubernetes.msi', '/qn' -NoNewWindow -Wait
+# Set up firewall
+RUN netsh advfirewall firewall add rule name="RDP" dir=in action=allow protocol=TCP localport=3389
 
-# Enable Keep Alive
-RUN powershell -Command \
-    Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name 'KeepAliveEnable' -Value 1
+# Set up keep alive
+RUN reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server" /v KeepAliveEnable /t REG_DWORD /d 1
 
-# Expose RDP port
+# Expose port
 EXPOSE 3389
 
 # Start RDP
