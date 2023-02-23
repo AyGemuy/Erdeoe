@@ -1,15 +1,9 @@
-FROM mcr.microsoft.com/windows/servercore:ltsc2019
+FROM mcr.microsoft.com/windows/servercore:latest
 
-# Install RDP
-RUN dism.exe /online /enable-feature /featurename:RemoteDesktop-Core /all /norestart
-
-# Install keep alive
 RUN powershell -Command \
-    wget https://raw.githubusercontent.com/Microsoft/Virtualization-Documentation/master/windows-server-container-tools/KeepAlive/Install-ContainerKeepAlive.ps1 -OutFile C:\Install-ContainerKeepAlive.ps1; \
-    powershell.exe -ExecutionPolicy Bypass -File C:\Install-ContainerKeepAlive.ps1
+    $ErrorActionPreference = 'Stop'; \
+    $ProgressPreference = 'SilentlyContinue'; \
+    Invoke-WebRequest -Uri https://kubernetes.io/docs/tasks/tools/install-kubectl/ -OutFile C:\kubectl.exe; \
+    Add-Content -Path 'C:\ProgramData\Docker\config\daemon.json' -Value '{ "live-restore": true }'
 
-# Expose RDP port
-EXPOSE 3389
-
-# Start keep alive
-CMD ["C:\\KeepAlive\\KeepAlive.exe"]
+CMD ["C:\\kubectl.exe"]
