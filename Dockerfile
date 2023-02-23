@@ -1,22 +1,15 @@
 FROM ubuntu:latest
 
-# Install packages
-RUN apt-get update && apt-get install -y \
-    xrdp \
-    xfce4 \
-    xfce4-goodies \
-    tightvncserver \
-    && apt-get clean
+# Install Ngrok
+RUN apt-get update && apt-get install -y wget
+RUN wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
+RUN unzip ngrok-stable-linux-amd64.zip
 
-# Configure xrdp
-RUN sed -i 's/^new_cursors=true/new_cursors=false/g' /etc/xrdp/xrdp.ini
+# Install xrdp
+RUN apt-get update && apt-get install -y xrdp
 
-# Configure xfce4
-RUN echo xfce4-session >/root/.xsession
+# Expose port
+EXPOSE 3389
 
-# Configure keep alive
-RUN echo "while true; do sleep 10; done" > /root/keepalive.sh
-RUN chmod +x /root/keepalive.sh
-
-# Start xrdp
-CMD /etc/init.d/xrdp start && /root/keepalive.sh
+# Start xrdp and ngrok
+CMD xrdp -n && ./ngrok tcp 3389 --log=stdout --log-level=debug --region=us --authtoken=1pRvfePyCgaa2xZw3Wk4VxOANxA_5KEgrVHxaV9XohEnzDe3S --keepalive=true
