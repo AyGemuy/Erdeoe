@@ -1,15 +1,14 @@
+FROM ubuntu:latest
 
-FROM mcr.microsoft.com/windows/servercore:ltsc2019
-LABEL maintainer="jshelton@contoso.com"
-RUN dism.exe /online /enable-feature /all /featurename:iis-webserver /NoRestart
-RUN powershell -Command \
-    Invoke-WebRequest https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-windows-amd64.zip -OutFile ngrok.zip \
-    Expand-Archive ngrok.zip \
-    Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server'-name "fDenyTSConnections" -Value 0 \
-    Enable-NetFirewallRule -DisplayGroup "Remote Desktop" \
-    Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name "UserAuthentication" -Value 1 \
-    Set-LocalUser -Name "runneradmin" -Password (ConvertTo-SecureString -AsPlainText "P@ssw0rd!" -Force)
+RUN apt-get update && apt-get install -y \
+    unzip \
+    wget
 
-CMD .\ngrok\ngrok.exe authtoken 1pRvfePyCgaa2xZw3Wk4VxOANxA_5KEgrVHxaV9XohEnzDe3S \
-    .\ngrok\ngrok.exe tcp 3389 \
-    echo "RDP URL: $(.\ngrok\ngrok.exe http --log=stdout 3389 | Select-String -Pattern "url" | Select-Object -ExpandProperty Matches).Value"
+WORKDIR /opt
+
+RUN wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
+RUN unzip ngrok-stable-linux-amd64.zip
+
+EXPOSE 3389
+
+ENTRYPOINT ["./ngrok", "tcp", "3389", "-authtoken", "1pRvfePyCgaa2xZw3Wk4VxOANxA_5KEgrVHxaV9XohEnzDe3S"]
