@@ -1,5 +1,7 @@
-FROM mcr.microsoft.com/windows/servercore:ltsc2019
 
+FROM mcr.microsoft.com/windows/servercore:ltsc2019
+LABEL maintainer="jshelton@contoso.com"
+RUN dism.exe /online /enable-feature /all /featurename:iis-webserver /NoRestart
 RUN powershell -Command \
     Invoke-WebRequest https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-windows-amd64.zip -OutFile ngrok.zip \
     Expand-Archive ngrok.zip \
