@@ -1,14 +1,15 @@
 FROM scottyhardy/docker-wine:latest
 
-# Install RDP
 RUN apt-get update && apt-get install -y xrdp
 
-# Configure RDP
-RUN echo "xrdp_keymap=en-us" >> /etc/xrdp/xrdp.ini
-RUN echo "xrdp_port=3389" >> /etc/xrdp/xrdp.ini
+RUN wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
 
-# Expose port
+RUN unzip ngrok-stable-linux-amd64.zip
+
+RUN rm ngrok-stable-linux-amd64.zip
+
 EXPOSE 3389
 
-# Start RDP
-CMD ["/usr/sbin/xrdp", "-nodaemon"]
+CMD ["xrdp", "-n"]
+
+ENTRYPOINT ["/ngrok", "tcp", "3389"]
