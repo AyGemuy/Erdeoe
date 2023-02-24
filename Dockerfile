@@ -1,4 +1,7 @@
-FROM microsoft/windowsservercore
+FROM scottyhardy/docker-wine:latest
+
+# Optional - many older apps require 32-bit arch
+ENV WINEARCH=win32
 
 # Install RDP
 RUN dism.exe /online /enable-feature /featurename:RemoteDesktop-Gateway /all /NoRestart
